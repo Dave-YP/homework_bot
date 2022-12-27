@@ -1,12 +1,13 @@
-import os
 import logging
 import time
+import os
+import sys
+from http import HTTPStatus
+from requests import RequestException
 
 import telegram
 import requests
 from dotenv import load_dotenv
-from http import HTTPStatus
-import sys
 
 load_dotenv()
 
@@ -27,11 +28,6 @@ HOMEWORK_VERDICTS = {
 }
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(handler)
-formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
-handler.setFormatter(formatter)
 
 
 def check_tokens():
@@ -46,8 +42,8 @@ def check_tokens():
 def send_message(bot, message):
     """Отправляет сообщение в Telegram чат."""
     try:
-        logging.debug('Сообщение отправлено.')
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+        logger.debug('Запрос к чату')
         logger.info(f'Бот отправил сообщение: {message}')
     except Exception as error:
         logger.error(f'Ошибка отправки сообщения: {error}')
@@ -63,12 +59,18 @@ def get_api_answer(current_timestamp):
             headers=HEADERS,
             params=params,
         )
-    except Exception:
-        raise ConnectionError('Нет подключения к серверу')
+    except requests.exceptions.RequestException as error:
+        error = 'Нет подключения к серверу'
+        raise ConnectionError(error)
     if response.status_code != HTTPStatus.OK:
-        raise Exception(
-            f'{ENDPOINT} недоступен.'
-            f'Код ответа API: {response.status_code}')
+        error_message = 'Ошибка Request'
+        logging.error(error_message)
+        raise RequestException(error_message)
+    try:
+        response.json()
+    except Exception as error:
+        logging.error(f'Нет ответа от API {error}')
+        raise Exception(error)
     return response.json()
 
 
@@ -113,9 +115,7 @@ def main():
             homeworks = check_response(response)
             if homeworks:
                 message = parse_status(homeworks[0])
-                if message != previous_status:
-                    send_message(bot, message)
-                    previous_status = message
+                send_message(bot, message)
             else:
                 logger.debug('Нет нового статуса')
             current_timestamp = response.get('current_date')
@@ -130,4 +130,9 @@ def main():
 
 
 if __name__ == '__main__':
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(stream=sys.stdout)
+    logger.addHandler(handler)
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
+    handler.setFormatter(formatter)
     main()
