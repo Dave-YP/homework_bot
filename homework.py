@@ -2,6 +2,7 @@ import logging
 import time
 import os
 import sys
+import json
 from http import HTTPStatus
 from requests import RequestException
 
@@ -41,12 +42,13 @@ def check_tokens():
 
 def send_message(bot, message):
     """Отправляет сообщение в Telegram чат."""
+    logger.debug('Запрос к чату')
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-        logger.debug('Запрос к чату')
-        logger.info(f'Бот отправил сообщение: {message}')
     except Exception as error:
         logger.error(f'Ошибка отправки сообщения: {error}')
+    else:
+        logger.info(f'Бот отправил сообщение: {message}')
 
 
 def get_api_answer(current_timestamp):
@@ -54,7 +56,7 @@ def get_api_answer(current_timestamp):
     timestamp = current_timestamp
     params = {'from_date': timestamp}
     try:
-        response = requests.get(
+        homework_get = requests.get(
             ENDPOINT,
             headers=HEADERS,
             params=params,
@@ -62,16 +64,16 @@ def get_api_answer(current_timestamp):
     except requests.exceptions.RequestException as error:
         error = 'Нет подключения к серверу'
         raise ConnectionError(error)
-    if response.status_code != HTTPStatus.OK:
+    if homework_get.status_code != HTTPStatus.OK:
         error_message = 'Ошибка Request'
-        logging.error(error_message)
         raise RequestException(error_message)
     try:
-        response.json()
-    except Exception as error:
-        logging.error(f'Нет ответа от API {error}')
-        raise Exception(error)
-    return response.json()
+        response = homework_get.json()
+    except json.JSONDecodeError as error:
+        logger.error(
+            f'Невалидный json: {error}.'
+        )
+    return response
 
 
 def check_response(response):
