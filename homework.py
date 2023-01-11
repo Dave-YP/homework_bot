@@ -1,3 +1,4 @@
+"""Импорт необходимых библиотек."""
 import logging
 import time
 import os
