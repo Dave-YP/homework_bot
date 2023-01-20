@@ -78,7 +78,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """Проверяет ответ API на соответствие документации. 666"""
+    """Проверяет ответ API на соответствие документации."""
     logger.info('Начинаем проверку ответа сервера')
     if not isinstance(response, dict):
         raise TypeError('Ответ API не является словарем.')
