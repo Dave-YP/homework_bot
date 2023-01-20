@@ -16,5 +16,5 @@ pip install -r requirements.txt
 4.	Создайте в директории файл .env и поместите туда необходимые токены в формате PRAKTIKUM_TOKEN = 'ххххххххх', TELEGRAM_TOKEN = 'ххххххххххх', TELEGRAM_CHAT_ID = 'ххххххххххх'
 5.	Запустите homework.py командой:
 ```sh
-python homework.py runserver.
+python homework.py runserver
 ```
