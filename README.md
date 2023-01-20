@@ -12,9 +12,9 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-1.	Создайте чат-бота Telegram.
-2.	Создайте в директории файл .env и поместите туда необходимые токены в формате PRAKTIKUM_TOKEN = 'ххххххххх', TELEGRAM_TOKEN = 'ххххххххххх', TELEGRAM_CHAT_ID = 'ххххххххххх'
-3.	Запустите homework.py командой:
+3.	Создайте чат-бота Telegram.
+4.	Создайте в директории файл .env и поместите туда необходимые токены в формате PRAKTIKUM_TOKEN = 'ххххххххх', TELEGRAM_TOKEN = 'ххххххххххх', TELEGRAM_CHAT_ID = 'ххххххххххх'
+5.	Запустите homework.py командой:
 ```sh
 python homework.py runserver.
 ```
